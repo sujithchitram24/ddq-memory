@@ -1,4 +1,5 @@
 # Structured DDQ Memory
+Built over four days as a proof of work
 
 **Does keeping financial tables as structured, typed data make evidence for LLM answers
 more reliable than flattened text?** A small FastAPI + PostgreSQL service that ingests
