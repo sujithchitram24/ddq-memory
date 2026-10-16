@@ -1,0 +1,235 @@
+# Evaluation set for the synthetic corpus (all funds are fictional).
+#
+# Ground truth was written by hand from scripts/make_corpus.py, NOT from pipeline output.
+# The pipeline never reads this file; only app/evaluation does.
+#
+# Fields:
+#   expected_values  every string must appear in the answer (case/commas/spaces normalised)
+#   evidence_labels  for the association metric: ONE cited evidence item must contain all
+#                    expected_values AND all of these labels (row label, column header, period)
+#   should_abstain   true when the corpus does not contain the answer
+#
+# Known bias: the same person wrote the corpus and the questions, and knew the hypothesis.
+
+funds:
+  northwind: northwind_growth_iii.pdf
+  harbor: harbor_lane_credit_ii.docx
+  summit: summit_ridge_infra_i.xlsx
+
+questions:
+  # ---------------------------------------------------------------- Northwind (PDF)
+  - id: nw-01
+    fund: northwind
+    category: fee_rate_and_basis
+    question: What is the management fee during the investment period and what is it calculated on?
+    expected_values: ["2.0%", "committed capital"]
+    evidence_labels: ["rate", "basis"]
+  - id: nw-02
+    fund: northwind
+    category: lookalike_metric
+    question: What is the management fee after the investment period ends, and on what basis?
+    expected_values: ["1.5%", "net invested capital"]
+    evidence_labels: ["post-investment period", "basis"]
+  - id: nw-03
+    fund: northwind
+    category: performance_fee
+    question: What is the carried interest rate and the preferred return?
+    expected_values: ["20%", "8%"]
+    evidence_labels: ["carried interest"]
+  - id: nw-04
+    fund: northwind
+    category: footnote
+    question: Is there a reduction in the management fee for large commitments?
+    expected_values: ["0.25%", "50,000,000"]
+    evidence_labels: []
+  - id: nw-05
+    fund: northwind
+    category: currency_amount
+    question: What is the minimum LP commitment?
+    expected_values: ["USD 5,000,000"]
+    evidence_labels: ["minimum lp commitment"]
+  - id: nw-06
+    fund: northwind
+    category: currency_amount
+    question: What is the hard cap?
+    expected_values: ["650,000,000"]
+    evidence_labels: ["hard cap"]
+  - id: nw-07
+    fund: northwind
+    category: lookalike_metric
+    question: What is the net IRR of Northwind Growth Partners II?
+    expected_values: ["14.2%"]
+    evidence_labels: ["net irr", "partners ii"]
+  - id: nw-08
+    fund: northwind
+    category: lookalike_metric
+    question: What was the gross IRR of Northwind Growth Partners I?
+    expected_values: ["24.1%"]
+    evidence_labels: ["gross irr", "partners i"]
+  - id: nw-09
+    fund: northwind
+    category: lookalike_metric
+    question: What is the net TVPI of Northwind Growth Partners II?
+    expected_values: ["1.6x"]
+    evidence_labels: ["net tvpi", "partners ii"]
+  - id: nw-10
+    fund: northwind
+    category: prose
+    question: How are transaction and monitoring fees treated?
+    expected_values: ["100%"]
+    evidence_labels: ["offset"]
+  - id: nw-11
+    fund: northwind
+    category: reporting_period
+    question: As of what date is prior fund performance reported?
+    expected_values: ["31 december 2025"]
+    evidence_labels: []
+  - id: nw-12
+    fund: northwind
+    category: fee_frequency
+    question: How often is the management fee paid?
+    expected_values: ["quarterly in advance"]
+    evidence_labels: ["frequency"]
+  - id: nw-13
+    fund: northwind
+    category: missing_evidence
+    question: What is the fund's ESG rating?
+    expected_values: []
+    evidence_labels: []
+    should_abstain: true
+  - id: nw-14
+    fund: northwind
+    category: missing_evidence
+    question: What management fee applies to co-investment vehicles?
+    expected_values: []
+    evidence_labels: []
+    should_abstain: true
+
+  # ---------------------------------------------------------------- Harbor Lane (DOCX)
+  - id: hl-01
+    fund: harbor
+    category: fee_rate_and_basis
+    question: What is the management fee and what is it calculated on?
+    expected_values: ["1.25%", "invested capital"]
+    evidence_labels: ["rate", "calculated on"]
+  - id: hl-02
+    fund: harbor
+    category: performance_fee
+    question: What is the performance fee rate and its hurdle?
+    expected_values: ["15%", "6%"]
+    evidence_labels: ["performance fee"]
+  - id: hl-03
+    fund: harbor
+    category: qualification
+    question: What is the minimum commitment?
+    expected_values: ["EUR 2,000,000", "EUR 1,000,000"]
+    evidence_labels: []
+  - id: hl-04
+    fund: harbor
+    category: conflict
+    question: What is the fund term?
+    expected_values: ["7 years", "eight years"]
+    evidence_labels: []
+    note: The Key Terms table says 7 years, the Governance prose says eight years. A good answer reports both.
+  - id: hl-05
+    fund: harbor
+    category: merged_header
+    question: What is the weighted average yield of Fund II?
+    expected_values: ["9.8%"]
+    evidence_labels: ["weighted average yield", "fund ii"]
+  - id: hl-06
+    fund: harbor
+    category: merged_header
+    question: What is the default rate of Fund I?
+    expected_values: ["1.2%"]
+    evidence_labels: ["default rate", "fund i"]
+  - id: hl-07
+    fund: harbor
+    category: fee_existence
+    question: Does the fund charge a placement fee?
+    expected_values: ["none"]
+    evidence_labels: ["placement fee"]
+  - id: hl-08
+    fund: harbor
+    category: prose
+    question: In which currency is the fund denominated?
+    expected_values: ["EUR"]
+    evidence_labels: []
+  - id: hl-09
+    fund: harbor
+    category: footnote
+    question: How is the hurdle rate compounded?
+    expected_values: ["annually"]
+    evidence_labels: ["hurdle"]
+  - id: hl-10
+    fund: harbor
+    category: missing_evidence
+    question: What is the clawback provision on carried interest?
+    expected_values: []
+    evidence_labels: []
+    should_abstain: true
+
+  # ---------------------------------------------------------------- Summit Ridge (XLSX)
+  - id: sr-01
+    fund: summit
+    category: fee_rate_and_basis
+    question: What is the management fee rate and basis?
+    expected_values: ["1.25%", "commitments"]
+    evidence_labels: ["rate", "basis"]
+  - id: sr-02
+    fund: summit
+    category: performance_fee
+    question: What is the performance fee and its hurdle?
+    expected_values: ["10.00%", "7%"]
+    evidence_labels: ["performance fee"]
+  - id: sr-03
+    fund: summit
+    category: period_column
+    question: What was the net IRR in 2024?
+    expected_values: ["9.6%"]
+    evidence_labels: ["net irr", "2024"]
+  - id: sr-04
+    fund: summit
+    category: period_column
+    question: What was the gross IRR in 2025?
+    expected_values: ["13.8%"]
+    evidence_labels: ["gross irr", "2025"]
+  - id: sr-05
+    fund: summit
+    category: missing_value
+    question: What was the DPI in 2023?
+    expected_values: ["n/a"]
+    evidence_labels: ["dpi", "2023"]
+  - id: sr-06
+    fund: summit
+    category: qualification
+    question: What is the minimum commitment?
+    expected_values: ["USD 10,000,000", "USD 7,500,000"]
+    evidence_labels: []
+    note: Terms sheet says 10m; Notes sheet allows 7.5m for first-close investors (multi-sheet).
+  - id: sr-07
+    fund: summit
+    category: fee_existence
+    question: Is an acquisition fee charged?
+    expected_values: ["not charged"]
+    evidence_labels: ["acquisition fee"]
+  - id: sr-08
+    fund: summit
+    category: parser_limitation
+    question: What is the GP commitment?
+    expected_values: ["12"]
+    evidence_labels: ["gp commitment"]
+    note: Stored as a formula with no cached value. openpyxl cannot compute it, so we expect BOTH strategies to fail. Kept to make the limitation visible.
+  - id: sr-09
+    fund: summit
+    category: currency_amount
+    question: What is the investment period?
+    expected_values: ["4 years"]
+    evidence_labels: ["investment period"]
+  - id: sr-10
+    fund: summit
+    category: missing_evidence
+    question: What is the fund's leverage limit?
+    expected_values: []
+    evidence_labels: []
+    should_abstain: true

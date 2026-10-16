@@ -1,0 +1,38 @@
+# Workers scale independently of the API (scale on queue depth / oldest job age).
+# On SIGTERM the worker finishes its current job; terminationGracePeriodSeconds must
+# exceed the longest expected job, otherwise the lease mechanism recovers the job.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ddq-worker
+  labels: {app: ddq-worker}
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: ddq-worker}
+  template:
+    metadata:
+      labels: {app: ddq-worker}
+    spec:
+      securityContext: {runAsNonRoot: true, runAsUser: 10001}
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: worker
+          image: ddq-memory:0.1.0
+          command: ["python", "-m", "app.worker"]
+          envFrom:
+            - configMapRef: {name: ddq-config}
+            - secretRef: {name: ddq-secrets}
+          resources:
+            requests: {cpu: 500m, memory: 512Mi}
+            limits: {memory: 1Gi}   # PDF parsing can be memory hungry; OOM -> lease recovery
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+            - {name: storage, mountPath: /data/storage}
+      volumes:
+        - {name: tmp, emptyDir: {}}
+        - {name: storage, emptyDir: {}}

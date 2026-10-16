@@ -1,0 +1,22 @@
+# Run migrations as a separate Job BEFORE rolling out new pods (e.g. a CI step or Helm
+# pre-upgrade hook). Migrations must be backward compatible ("expand/contract"): the old
+# pods keep running against the new schema during the rollout.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ddq-migrate
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext: {runAsNonRoot: true, runAsUser: 10001}
+      containers:
+        - name: migrate
+          image: ddq-memory:0.1.0
+          command: ["alembic", "upgrade", "head"]
+          envFrom:
+            - secretRef: {name: ddq-secrets}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {memory: 256Mi}

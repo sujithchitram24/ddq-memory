@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ddq-config
+data:
+  STORAGE_DIR: /data/storage
+  JOB_LEASE_SECONDS: "300"
+  JOB_MAX_ATTEMPTS: "3"

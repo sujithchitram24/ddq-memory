@@ -1,0 +1,48 @@
+# Local stack: Postgres + one-shot migration + API + worker.
+#   docker compose up --build
+# Credentials here are for local use only.
+services:
+  db:
+    image: postgres:16.4
+    environment:
+      POSTGRES_USER: ddq
+      POSTGRES_PASSWORD: ddq_local_only
+      POSTGRES_DB: ddq
+    ports: ["5433:5432"]   # 5433 to avoid clashing with a Postgres already on the host
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ddq -d ddq"]
+      interval: 2s
+      retries: 20
+    volumes: [pgdata:/var/lib/postgresql/data]
+
+  migrate:   # runs once, before api/worker start (same idea as a Kubernetes Job)
+    build: .
+    command: ["alembic", "upgrade", "head"]
+    environment: &env
+      DATABASE_URL: postgresql+psycopg://ddq:ddq_local_only@db:5432/ddq
+      STORAGE_DIR: /data/storage
+    depends_on:
+      db: {condition: service_healthy}
+
+  api:
+    build: .
+    environment: *env
+    ports: ["8000:8000"]
+    volumes: [files:/data/storage]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready')"]
+      interval: 5s
+
+  worker:
+    build: .
+    command: ["python", "-m", "app.worker"]
+    environment: *env
+    volumes: [files:/data/storage]   # local stand-in for S3 shared by api and worker
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+
+volumes:
+  pgdata:
+  files:

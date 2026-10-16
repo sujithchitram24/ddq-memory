@@ -1,0 +1,33 @@
+[project]
+name = "ddq-memory"
+version = "0.1.0"
+description = "Structured DDQ Memory: flattened vs structured table retrieval for financial DDQ documents"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi==0.115.12",
+  "uvicorn[standard]==0.34.2",
+  "pydantic==2.11.4",
+  "pydantic-settings==2.9.1",
+  "sqlalchemy==2.0.40",
+  "alembic==1.15.2",
+  "psycopg[binary]==3.2.9",
+  "python-multipart==0.0.20",
+  "pymupdf==1.25.5",
+  "pdfplumber==0.11.6",
+  "python-docx==1.1.2",
+  "openpyxl==3.1.5",
+  "pyyaml==6.0.2",
+  "httpx==0.28.1",
+]
+
+[dependency-groups]
+dev = ["pytest==8.3.5", "fpdf2==2.8.3"]
+# Optional: real LLM answer generation. Install with: uv sync --group llm
+llm = ["anthropic>=1.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.uv]
+package = false

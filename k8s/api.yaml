@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ddq-api
+  labels: {app: ddq-api}
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: ddq-api}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0   # never drop below current capacity during a deploy
+      maxSurge: 1         # bring one new pod up (and Ready) before removing an old one
+  template:
+    metadata:
+      labels: {app: ddq-api}
+    spec:
+      securityContext: {runAsNonRoot: true, runAsUser: 10001}
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: api
+          image: ddq-memory:0.1.0
+          ports: [{containerPort: 8000}]
+          envFrom:
+            - configMapRef: {name: ddq-config}
+            - secretRef: {name: ddq-secrets}
+          readinessProbe:          # gate traffic: only route to pods that can reach the DB
+            httpGet: {path: /health/ready, port: 8000}
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:           # restart only if the process itself is stuck (no DB check)
+            httpGet: {path: /health/live, port: 8000}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 250m, memory: 256Mi}
+            limits: {memory: 512Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+            - {name: storage, mountPath: /data/storage}
+      volumes:
+        - {name: tmp, emptyDir: {}}
+        # Local stand-in. In production, files go to S3 and this volume disappears.
+        - {name: storage, emptyDir: {}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ddq-api
+spec:
+  selector: {app: ddq-api}
+  ports: [{port: 80, targetPort: 8000}]
